@@ -58,6 +58,49 @@ public class Logic extends JPanel implements ActionListener {
     }
 
     private void initGame() {
+        lives = 3;
+        score = 0;
+        initLevel();
+        nGhosts = 6;
+        currentSpeed = 3;
+    }
+
+    private void initLevel() {
+        int i;
+        for (i = 0; i < nBlocks * nBlocks; i++) {
+            screenData[i] = levelData[i];
+        }
+
+        continueLevel();
+    }
+
+    private void continueLevel() {
+        int dx = 1;
+        int random;
+
+        for (int i = 0; i < nGhosts; i++) {
+
+            ghostY[i] = 4 * blockSize; //start position
+            ghostX[i] = 4 * blockSize;
+            ghostDy[i] = 0;
+            ghostDx[i] = dx;
+            dx = -dx;
+            random = (int) (Math.random() * (currentSpeed + 1));
+
+            if (random > currentSpeed) {
+                random = currentSpeed;
+            }
+
+            ghostSpeed[i] = validSpeeds[random];
+        }
+
+        pacmanX = 7 * blockSize;  //start position
+        pacmanY = 11 * blockSize;
+        pacmanDx = 0;	//reset direction move
+        pacmanDy = 0;
+        reqDx = 0;		// reset direction controls
+        reqDy = 0;
+        dying = false;
     }
 
     private void initVariables() {
