@@ -64,7 +64,20 @@ public class Logic extends JPanel implements ActionListener {
         nGhosts = 6;
         currentSpeed = 3;
     }
+    private void playGame(Graphics2D g2d) {
+        if (dying) {
+            
 
+        } else {
+
+            movePacman();
+            drawPacman(g2d);
+        }
+    }
+
+    public void paintComponent(Graphics g) {
+
+    }
     private void initLevel() {
         int i;
         for (i = 0; i < nBlocks * nBlocks; i++) {
@@ -124,6 +137,54 @@ public class Logic extends JPanel implements ActionListener {
         right = new ImageIcon("/src/pacman/images/right.gif").getImage();
         ghost = new ImageIcon("/src/pacman/images/ghost.gif").getImage();
         heart = new ImageIcon("/src/pacman/images/heart.png").getImage();
+    }
+    private void movePacman() {
+
+        int pos;
+        short ch;
+
+        if (pacmanX % blockSize == 0 && pacmanY % blockSize == 0) {
+            pos = pacmanX/blockSize + nBlocks * (int) (pacmanY/blockSize);
+            ch = screenData[pos];
+
+            if ((ch & 16) != 0) {
+                screenData[pos] = (short) (ch & 15);
+                score++;
+            }
+
+            if (reqDx != 0 || reqDy != 0) {
+                if (!((reqDx == -1 && reqDy == 0 && (ch & 1) != 0)
+                        || (reqDx == 1 && reqDy == 0 && (ch & 4) != 0)
+                        || (reqDx == 0 && reqDy == -1 && (ch & 2) != 0)
+                        || (reqDx == 0 && reqDy == 1 && (ch & 8) != 0))) {
+                    pacmanDx = reqDx;
+                    pacmanDy = reqDy;
+                }
+            }
+
+            // Check for standstill
+            if ((pacmanDx == -1 && pacmanDy == 0 && (ch & 1) != 0)
+                    || (pacmanDx == 1 && pacmanDy == 0 && (ch & 4) != 0)
+                    || (pacmanDx == 0 && pacmanDy == -1 && (ch & 2) != 0)
+                    || (pacmanDx == 0 && pacmanDy == 1 && (ch & 8) != 0)) {
+                pacmanDx = 0;
+                pacmanDy = 0;
+            }
+        }
+        pacmanX = pacmanX + pacmanSpeed * pacmanDx;
+        pacmanY = pacmanY + pacmanSpeed * pacmanDy;
+    }
+    private void drawPacman(Graphics2D g2d) {
+
+        if (reqDx == -1) {
+            g2d.drawImage(left, pacmanX + 1, pacmanY + 1, this);
+        } else if (reqDx == 1) {
+            g2d.drawImage(right, pacmanX + 1, pacmanY + 1, this);
+        } else if (reqDy == -1) {
+            g2d.drawImage(up, pacmanX + 1, pacmanY + 1, this);
+        } else {
+            g2d.drawImage(down, pacmanX + 1, pacmanY + 1, this);
+        }
     }
     class TAdapter extends KeyAdapter {
         public void keyPressed(KeyEvent e) {
