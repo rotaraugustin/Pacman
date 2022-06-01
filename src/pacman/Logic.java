@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import javax.swing.ImageIcon;
+import javax.swing.JPanel;
 
 public class Logic extends JPanel implements ActionListener {
 
@@ -66,17 +68,134 @@ public class Logic extends JPanel implements ActionListener {
     }
     private void playGame(Graphics2D g2d) {
         if (dying) {
-            
+            death();
 
         } else {
 
             movePacman();
             drawPacman(g2d);
+            moveGhosts(g2d);
+            checkMaze();
+        }
+    }
+
+    private void death() {
+        lives--;
+
+        if (lives == 0) {
+            inGame = false;
+        }
+
+        continueLevel();
+    }
+
+    private void checkMaze() {
+        int i = 0;
+        boolean finished = true;
+
+        while (i < nBlocks * nBlocks && finished) {
+
+            if ((screenData[i]&48) !=0) {
+                finished = false;
+            }
+
+            i++;
+        }
+
+        if (finished==true) {
+
+            score += 50;
+
+            if (nGhosts < maxGhosts) {
+                nGhosts++;
+            }
+
+            if (currentSpeed < maxSpeed) {
+                currentSpeed++;
+            }
+
+            initLevel();
+        }
+    }
+void drawMaze(Graphics2D g2d)
+{
+
+    short i = 0;
+    int x, y;
+
+    for (y = 0; y < screenSize; y += blockSize) {
+         for (x = 0; x < screenSize; x += blockSize) {
+
+            g2d.setColor(new Color(28, 165, 37));
+            g2d.setStroke(new BasicStroke(5));
+
+            if ((levelData[i] == 0)) {
+                g2d.fillRect(x, y, blockSize, blockSize);
+            }
+
+            if ((screenData[i] & 1) != 0) {
+                g2d.drawLine(x, y, x, y + blockSize - 1);
+            }
+
+            if ((screenData[i] & 2) != 0) {
+                g2d.drawLine(x, y, x + blockSize - 1, y);
+            }
+
+            if ((screenData[i] & 4) != 0) {
+                g2d.drawLine(x + blockSize - 1, y, x + blockSize - 1,
+                        y + blockSize - 1);
+            }
+
+            if ((screenData[i] & 8) != 0) {
+                g2d.drawLine(x, y + blockSize - 1, x + blockSize - 1,
+                        y + blockSize - 1);
+            }
+
+            if ((screenData[i] & 16) != 0) {
+                g2d.setColor(new Color(241, 190, 63));
+                g2d.fillOval(x + 10, y + 10, 6, 6);
+            }
+
+            i++;
+        }
+    }
+}
+    private void showIntroScreen(Graphics2D g2d) {
+
+        String start = "Press SPACE to start";
+        g2d.setColor(Color.orange);
+        g2d.drawString(start, (screenSize)/4, 150);
+    }
+    private void drawScore(Graphics2D g) {
+        g.setFont(font);
+        g.setColor(new Color(26, 19, 219));
+        String s = "Score: " + score;
+        g.drawString(s, screenSize / 2 + 96, screenSize + 16);
+
+        for (int i = 0; i < lives; i++) {
+            g.drawImage(heart, i * 28 + 8, screenSize + 1, this);
         }
     }
 
     public void paintComponent(Graphics g) {
+        super.paintComponent(g);
 
+        Graphics2D g2d = (Graphics2D) g;
+
+        g2d.setColor(Color.black);
+        g2d.fillRect(0, 0, dimension.width, dimension.height);
+
+        drawMaze(g2d);
+        drawScore(g2d);
+
+        if (inGame) {
+            playGame(g2d);
+        } else {
+            showIntroScreen(g2d);
+        }
+
+        Toolkit.getDefaultToolkit().sync();
+        g2d.dispose();
     }
     private void initLevel() {
         int i;
@@ -206,11 +325,11 @@ public void moveGhosts(Graphics2D g2d){
 
     private void loadImages() {
         down = new ImageIcon("src/pacman/images/down.gif").getImage();
-        up = new ImageIcon("/src/pacman/images/up.gif").getImage();
-        left = new ImageIcon("/src/pacman/images/left.gif").getImage();
-        right = new ImageIcon("/src/pacman/images/right.gif").getImage();
-        ghost = new ImageIcon("/src/pacman/images/ghost.gif").getImage();
-        heart = new ImageIcon("/src/pacman/images/heart.png").getImage();
+        up = new ImageIcon("src/pacman/images/up.gif").getImage();
+        left = new ImageIcon("src/pacman/images/left.gif").getImage();
+        right = new ImageIcon("src/pacman/images/right.gif").getImage();
+        ghost = new ImageIcon("src/pacman/images/ghost.gif").getImage();
+        heart = new ImageIcon("src/pacman/images/heart.png").getImage();
     }
     private void movePacman() {
 
@@ -292,6 +411,6 @@ public void moveGhosts(Graphics2D g2d){
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
+      repaint();
     }
 }
