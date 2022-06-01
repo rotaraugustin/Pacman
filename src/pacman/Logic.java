@@ -86,6 +86,80 @@ public class Logic extends JPanel implements ActionListener {
 
         continueLevel();
     }
+public void moveGhosts(Graphics2D g2d){
+    int pos;
+    int count;
+
+    for (int i = 0; i <nGhosts; i++) {
+        if (ghostX[i] % blockSize == 0 && ghostY[i] % blockSize == 0) {
+            pos = ghostX[i] / blockSize + nBlocks * (int) (ghostY[i] / blockSize);
+
+            count = 0;
+
+            if ((screenData[pos] & 1) == 0 && ghostDx[i] != 1) {
+                dx[count] = -1;
+                dy[count] = 0;
+                count++;
+            }
+
+            if ((screenData[pos] & 2) == 0 && ghostDy[i] != 1) {
+                dx[count] = 0;
+                dy[count] = -1;
+                count++;
+            }
+
+            if ((screenData[pos] & 4) == 0 && ghostDx[i] != -1) {
+                dx[count] = 1;
+                dy[count] = 0;
+                count++;
+            }
+
+            if ((screenData[pos] & 8) == 0 && ghostDy[i] != -1) {
+                dx[count] = 0;
+                dy[count] = 1;
+                count++;
+            }
+
+            if (count == 0) {
+
+                if ((screenData[pos] & 15) == 15) {
+                    ghostDx[i] = 0;
+                    ghostDy[i] = 0;
+                } else {
+                    ghostDx[i] = -ghostDx[i];
+                    ghostDy[i] = -ghostDy[i];
+                }
+
+            } else {
+
+                count = (int) (Math.random() * count);
+
+                if (count > 3) {
+                    count = 3;
+                }
+
+                ghostDx[i] = dx[count];
+                ghostDy[i] = dy[count];
+            }
+
+        }
+
+        ghostX[i] = ghostX[i] + (ghostDx[i] * ghostSpeed[i]);
+        ghostY[i] = ghostY[i] + (ghostDy[i] * ghostSpeed[i]);
+        drawGhost(g2d, ghostX[i] + 1, ghostY[i] + 1);
+
+        if (pacmanX> (ghostX[i] - 12) && pacmanX < (ghostX[i] + 12)
+                && pacmanY > (ghostY[i] - 12) && pacmanY < (ghostY[i] + 12)
+                && inGame) {
+
+            dying = true;
+        }
+    }
+}
+
+    private void drawGhost(Graphics2D g2d, int x, int y) {
+        g2d.drawImage(ghost, x, y, this);
+    }
 
     private void continueLevel() {
         int dx = 1;
